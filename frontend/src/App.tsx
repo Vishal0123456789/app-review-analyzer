@@ -70,9 +70,9 @@ function App() {
     setLoading(true);
 
     try {
-      // Create abort controller with 10-minute timeout
+      // Create abort controller with 20-minute timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minutes
+      const timeoutId = setTimeout(() => controller.abort(), 1200000); // 20 minutes
       
       const response = await fetch(`${API_BASE_URL}/api/analyze`, {
         method: 'POST',
@@ -127,7 +127,7 @@ function App() {
   };
 
   const statusMessage = loading
-    ? '⏳ Analysis in progress (may take 5-10 minutes)…'
+    ? '⏳ Analysis in progress (may take up to 15 minutes)…'
     : result
       ? '✨ Analysis completed. Emails sent.'
       : error
