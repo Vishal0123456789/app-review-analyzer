@@ -89,10 +89,12 @@ async def analyze(request: AnalyzeRequest):
         logger.info(f"Using GEMINI_API_KEY: {gemini_key[:10]}...")
         logger.info(f"Email recipients: {email_arg}")
         
-        result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=600)
+        result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=900)
         
         if result.returncode != 0:
-            logger.error(f"Orchestrator failed: {result.stderr}")
+            logger.error(f"Orchestrator failed with return code {result.returncode}")
+            logger.error(f"STDOUT: {result.stdout}")
+            logger.error(f"STDERR: {result.stderr}")
             raise Exception(f"Orchestrator execution failed: {result.stderr}")
         
         logger.info("Orchestrator completed successfully")
@@ -121,10 +123,10 @@ async def analyze(request: AnalyzeRequest):
         }
     
     except subprocess.TimeoutExpired:
-        logger.error("Orchestrator timeout")
+        logger.error("Orchestrator timeout (15 minutes exceeded)")
         raise HTTPException(
             status_code=500,
-            detail={"status": "error", "message": "Analysis timeout. Please try again."}
+            detail={"status": "error", "message": "Analysis timeout (15 minutes). Please try with a shorter time window."}
         )
     except Exception as e:
         logger.error(f"Error: {str(e)}")
