@@ -1,0 +1,45 @@
+# Python Cache
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Logs (keep in repo but can ignore if needed)
+# logs/*.log  # Comment out if you want version control of logs
+
+# Data files (optional - uncomment if you want to ignore generated data)
+# data/review_weekly_*.json
+# data/review_weekly_*.csv
+# data/email_send_log_*.json
+# data/workflow_summary_*.json
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+Thumbs.db
+.DS_Store
