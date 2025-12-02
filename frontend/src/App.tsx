@@ -1,5 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+
+// Get API URL from environment - for Vercel, it's injected into HTML meta tag
+const getApiUrl = (): string => {
+  // Try to get from meta tag (set in index.html)
+  const metaTag = document.querySelector('meta[name="api-url"]');
+  if (metaTag?.getAttribute('content')) {
+    return metaTag.getAttribute('content') || '';
+  }
+  // Fallback to localStorage if available
+  if (typeof localStorage !== 'undefined') {
+    return localStorage.getItem('VITE_API_URL') || 'http://localhost:8000';
+  }
+  return 'http://localhost:8000';
+};
+
+const API_BASE_URL = getApiUrl();
 
 interface PulseData {
   start_date: string;
@@ -50,7 +66,7 @@ function App() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/analyze', {
+      const response = await fetch(`${API_BASE_URL}/api/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -90,7 +106,7 @@ function App() {
       return;
     }
 
-    const url = `/api/download-pulse?file=${encodeURIComponent(pulseFileName)}`;
+    const url = `${API_BASE_URL}/api/download-pulse?file=${encodeURIComponent(pulseFileName)}`;
     const a = document.createElement('a');
     a.href = url;
     a.download = pulseFileName;
