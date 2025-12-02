@@ -4,8 +4,12 @@ __pycache__/
 *.so
 *.egg
 *.egg-info/
-dist/
+dist/  # Python dist, but NOT frontend/dist
 build/
+
+# Allow frontend dist folder (compiled React)
+!frontend/dist/
+!frontend/dist/**
 
 # Virtual Environments
 venv/
