@@ -152,5 +152,6 @@ async def download_pulse(file: str):
         filename=file
     )
 
-# Serve static frontend files
-app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="static")
+# Serve static frontend files (if dist folder exists)
+if Path("frontend/dist").exists():
+    app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="static")
