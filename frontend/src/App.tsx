@@ -5,14 +5,18 @@ import './App.css';
 const getApiUrl = (): string => {
   // Try to get from meta tag (set in index.html)
   const metaTag = document.querySelector('meta[name="api-url"]');
+  let url = '';
+  
   if (metaTag?.getAttribute('content')) {
-    return metaTag.getAttribute('content') || '';
+    url = metaTag.getAttribute('content') || '';
+  } else if (typeof localStorage !== 'undefined') {
+    url = localStorage.getItem('VITE_API_URL') || 'http://localhost:8000';
+  } else {
+    url = 'http://localhost:8000';
   }
-  // Fallback to localStorage if available
-  if (typeof localStorage !== 'undefined') {
-    return localStorage.getItem('VITE_API_URL') || 'http://localhost:8000';
-  }
-  return 'http://localhost:8000';
+  
+  // Remove trailing slash if present
+  return url.endsWith('/') ? url.slice(0, -1) : url;
 };
 
 const API_BASE_URL = getApiUrl();
