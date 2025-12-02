@@ -11,6 +11,11 @@ build/
 !frontend/dist/
 !frontend/dist/**
 
+# Ignore frontend node_modules (Vercel will install fresh)
+frontend/node_modules/
+frontend/.turbo/
+frontend/.next/
+
 # Virtual Environments
 venv/
 env/
