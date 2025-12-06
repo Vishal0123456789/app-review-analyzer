@@ -13,9 +13,9 @@ PRODUCT_NAME = "Groww Android App"
 PRODUCT_CONTEXT = "A mobile trading and investment application"
 
 # Email configuration
-FROM_EMAIL = "agraharivishal1998@gmail.com"
+FROM_EMAIL = "agraharivishal19981@gmail.com"
 # Read TO_EMAILS from environment variable (comma-separated), default to FROM_EMAIL if not set
-TO_EMAILS_ENV = os.getenv('TO_EMAILS', "agraharivishal1998@gmail.com")
+TO_EMAILS_ENV = os.getenv('TO_EMAILS', "agraharivishal19981@gmail.com")
 TO_EMAILS = [email.strip() for email in TO_EMAILS_ENV.split(',')]
 BCC_EMAIL = None  # Optional: BCC email address
 
