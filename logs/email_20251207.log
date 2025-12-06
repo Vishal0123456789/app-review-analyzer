@@ -1,0 +1,8 @@
+2025-12-07 00:18:48,926 - INFO - AnalysisScheduler initialized - Enabled: True, Schedule: mon 08:00 UTC
+2025-12-07 00:18:48,927 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-07 00:18:48,927 - INFO - Added job "Weekly Product Pulse Analysis" to job store "default"
+2025-12-07 00:18:48,927 - INFO - Scheduler started
+2025-12-07 00:18:48,927 - INFO - Scheduler started successfully - Next run: 2025-12-08 08:00:00 UTC
+2025-12-07 00:18:48,927 - INFO - Scheduler status: {'enabled': True, 'running': True, 'schedule': 'mon 08:00', 'timezone': 'UTC', 'next_run': '2025-12-08 08:00:00 UTC'}
+2025-12-07 00:25:29,141 - INFO - Scheduler has been shut down
+2025-12-07 00:25:29,141 - INFO - Scheduler stopped successfully

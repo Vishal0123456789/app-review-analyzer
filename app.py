@@ -9,8 +9,25 @@ import os
 from pathlib import Path
 from datetime import datetime
 import logging
+from contextlib import asynccontextmanager
+from scheduler import create_scheduler
 
-app = FastAPI()
+# Global scheduler instance
+scheduler = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage scheduler lifecycle with app startup and shutdown"""
+    # Startup
+    global scheduler
+    scheduler = create_scheduler()
+    scheduler.start()
+    logger.info(f"Scheduler status: {scheduler.get_status()}")
+    yield
+    # Shutdown
+    scheduler.stop()
+
+app = FastAPI(lifespan=lifespan)
 
 # CORS for frontend
 app.add_middleware(
@@ -153,6 +170,20 @@ async def download_pulse(file: str):
         media_type="application/json",
         filename=file
     )
+
+@app.get("/api/scheduler-status")
+async def get_scheduler_status():
+    """Get current scheduler status and next run time"""
+    if not scheduler:
+        return {
+            "status": "error",
+            "message": "Scheduler not initialized"
+        }
+    
+    return {
+        "status": "success",
+        "scheduler": scheduler.get_status()
+    }
 
 # Serve static frontend files (if dist folder exists)
 if Path("frontend/dist").exists():

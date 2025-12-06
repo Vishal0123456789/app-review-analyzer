@@ -1,506 +1,598 @@
-# App Review Insights Analyzer
+# Groww App Review Insights Analyzer
 
-A four-layer architecture for automated scraping, classification, insight generation, and email delivery of Google Play app reviews. Includes a modern React web interface for easy interaction.
+A sophisticated 4-layer architecture system that analyzes Google Play Store reviews for the Groww app, generates actionable insights, and sends professional HTML email reports with automated scheduling.
 
-## Quick Start
+## Overview
 
-### Option 1: Command Line (Recommended for automation)
-```powershell
-# Set required environment variables
-$env:GEMINI_API_KEY = "your-gemini-api-key"
-$env:TO_EMAILS = "recipient@example.com"
+**Groww App Review Insights Analyzer** automatically scrapes user reviews, classifies them into key themes, generates weekly insights, and delivers comprehensive analysis reports. It supports both manual frontend-triggered analysis and automatic scheduled execution.
 
-# Run the complete workflow
-cd "c:\Users\satis\Milestone 2"
-python orchestrator.py --window-days 28
+### Key Features
+
+- **Smart Review Scraping**: Automatically fetches Google Play Store reviews for the Groww app
+- **AI-Powered Classification**: Uses Google Gemini LLM to categorize reviews into 5 key themes
+- **Insight Generation**: MAP-REDUCE pipeline for aggregate analysis and action recommendations
+- **Professional Email Reports**: Beautiful HTML-formatted emails with Key Insights Dashboard, colored cards, and action roadmap
+- **Dual-Mode Orchestration**: Manual UI triggering + automatic weekly scheduler (Monday 8 AM)
+- **Real-Time Frontend**: React TypeScript UI with dark theme and live progress tracking
+- **RESTful API**: FastAPI backend with comprehensive endpoints
+
+---
+
+## Architecture
+
 ```
-
-### Option 2: Web Interface (Recommended for interactive use)
-
-**Terminal 1 - Start Backend:**
-```powershell
-$env:GEMINI_API_KEY = "your-gemini-api-key"
-cd "c:\Users\satis\Milestone 2"
-python -m uvicorn app:app --reload --host 0.0.0.0 --port 8000
+┌─────────────────────────────────────────────────────────────┐
+│                      Groww App Review Analyzer               │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  Layer 1: Review Scraping                                    │
+│  └─> Fetches reviews from Google Play Store (google-play-   │
+│      scraper library) for date range analysis               │
+│                                                               │
+│  Layer 2: AI Classification                                  │
+│  └─> Classifies reviews into 5 themes using Gemini LLM:    │
+│      • Execution & Performance                              │
+│      • UI & Feature Gaps                                    │
+│      • Charges & Transparency                               │
+│      • [Additional themes based on content]                 │
+│                                                               │
+│  Layer 3: Insight Generation                                 │
+│  └─> MAP-REDUCE pipeline for:                               │
+│      • Theme summarization                                  │
+│      • User quote extraction                                │
+│      • Action item generation                               │
+│                                                               │
+│  Layer 4: Email Delivery                                     │
+│  └─> Generates beautiful HTML reports and sends via SMTP    │
+│      • Header: "Weekly Product Pulse"                       │
+│      • Key Insights Dashboard with colored cards            │
+│      • Detailed theme analysis                              │
+│      • Action roadmap with timelines                        │
+│                                                               │
+├─────────────────────────────────────────────────────────────┤
+│  Orchestration & Scheduling                                 │
+│                                                               │
+│  Manual Trigger (Frontend)          Auto Scheduler           │
+│  └─> User clicks "Analyze"          └─> Monday 8:00 AM UTC  │
+│      └─> POST /api/analyze              └─> Background job  │
+│          └─> 15-min timeout             └─> 30-min timeout  │
+│          └─> Custom email               └─> DEFAULT_EMAIL   │
+│                                                               │
+├─────────────────────────────────────────────────────────────┤
+│  Frontend Interface (React + Tailwind)                       │
+│  └─> Dark theme UI with glassmorphism effects               │
+│  └─> Analysis window selector (7-35 days)                   │
+│  └─> Real-time progress bar with 4 steps                    │
+│  └─> Results display with expandable themes                 │
+│  └─> Email recipient input (optional)                       │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
 ```
-
-**Terminal 2 - Start Frontend:**
-```powershell
-cd "c:\Users\satis\Milestone 2\frontend"
-npm run dev
-```
-
-Then open: **http://localhost:5173** in your browser
 
 ---
 
 ## Project Structure
 
 ```
-Milestone 2/
-├── orchestrator.py                    # MAIN ENTRY POINT - Run all 4 layers
-├── app.py                             # FastAPI backend server for web interface
-│
-├── frontend/                          # React web interface
+Groww App Review Analyzer/
+├── frontend/                          # React TypeScript UI
 │   ├── src/
-│   │   ├── App.tsx                    # Main React component
-│   │   ├── main.tsx                   # React entry point
-│   │   └── App.css                    # Tailwind styles
-│   ├── package.json                   # Dependencies
-│   ├── vite.config.ts                 # Vite build config
-│   ├── tailwind.config.js             # Tailwind CSS config
-│   ├── index.html                     # HTML template
-│   └── README.md                      # Frontend documentation
+│   │   ├── App.tsx                   # Main React component
+│   │   ├── index.css                 # Tailwind + dark theme
+│   │   └── ...
+│   ├── dist/                         # Built static files
+│   ├── package.json
+│   └── vite.config.ts
 │
-├── layer1_scraping/                   # Layer 1: Fetch reviews from Google Play
+├── layer1_scraping/                  # Google Play scraper
 │   ├── __init__.py
-│   ├── scheduler_runner.py            # ReviewScheduler class
-│   └── review_processor.py            # PII redaction, text cleaning, normalization
+│   ├── scraper.py
+│   └── scraper_config.py
 │
-├── layer2_classification/             # Layer 2: Classify reviews into 5 themes + sentiment
+├── layer2_classification/            # Gemini LLM classification
 │   ├── __init__.py
-│   ├── classify_config.py             # Themes, LLM config, prompts
-│   └── review_classifier.py           # ReviewClassifier class using Gemini LLM
+│   ├── classifier.py
+│   └── classifier_config.py
 │
-├── layer3_insights/                   # Layer 3: Generate weekly pulse insights
+├── layer3_insights/                  # MAP-REDUCE insight pipeline
 │   ├── __init__.py
-│   ├── insights_config.py             # MAP-REDUCE pipeline config
-│   └── weekly_pulse_generator.py      # WeeklyPulseGenerator class
+│   ├── insights.py
+│   └── insights_config.py
 │
-├── layer4_email/                      # Layer 4: Generate and send weekly emails
+├── layer4_email/                     # Email report generation
 │   ├── __init__.py
-│   ├── email_config.py                # Email templates, SMTP config
-│   └── email_pulse_sender.py          # EmailPulseSender class
+│   ├── email_pulse_sender.py        # HTML email rendering
+│   ├── email_config.py              # Email prompts & templates
+│   └── scheduler.py                 # Auto-scheduler (APScheduler)
 │
-├── data/                              # All output files stored here
-│   ├── review_transformed_*.json          # Layer 1 raw reviews
-│   ├── review_transformed_*.csv
-│   ├── review_classified_*.json           # Layer 2 classified reviews
-│   ├── review_classified_*.csv
-│   ├── review_theme_summaries_*.json      # Layer 3 theme summaries
-│   ├── review_pulse_*.json                # Layer 3 final pulse
-│   ├── email_send_log_*.json              # Layer 4 email logs
-│   └── workflow_summary_*.json            # Orchestrator execution summary
+├── data/                             # Output files
+│   ├── review_pulse_*.json          # Final insight reports
+│   ├── review_classified_*.json     # Classified reviews
+│   └── ...
 │
-├── logs/                              # All logs stored here (date-based filenames)
-│   ├── scheduler_YYYYMMDD.log         # Layer 1
-│   ├── classifier_YYYYMMDD.log        # Layer 2
-│   ├── insights_YYYYMMDD.log          # Layer 3
-│   ├── email_YYYYMMDD.log             # Layer 4
-│   └── orchestrator_YYYYMMDD.log      # Orchestrator
+├── logs/                             # Execution logs
+│   ├── scheduler.log                # Scheduler execution
+│   ├── orchestrator_*.log           # Full workflow logs
+│   └── ...
 │
-├── requirements.txt                   # Python dependencies (core)
-├── requirements_web.txt               # Python dependencies (web)
-├── README.md                          # This file
-└── .gitignore
+├── app.py                            # FastAPI server
+├── orchestrator.py                   # Workflow orchestrator
+├── requirements.txt                  # Python dependencies
+│
+├── SCHEDULER_SETUP.md               # Scheduler quick start
+├── SCHEDULER_CONFIG.md              # Scheduler configuration guide
+├── SCHEDULER_TESTING.md             # Testing documentation
+├── SCHEDULER_API.md                 # API endpoint reference
+│
+└── README.md                         # This file
 ```
 
-## Four-Layer Architecture
-
-### Layer 1: Data Scraping & Storage
-**What it does:** Fetches ~4000 reviews from Google Play, applies filters (relevance > 0, last 28 days), redacts PII, removes emojis, normalizes text.
-
-**Output:**
-- `review_transformed_YYYYMMDD_YYYYMMDD.json` (raw reviews)
-- `review_transformed_YYYYMMDD_YYYYMMDD.csv`
-- `logs/scheduler_YYYYMMDD.log`
-
-**Files:**
-- `layer1_scraping/scheduler_runner.py` → ReviewScheduler class
-- `layer1_scraping/review_processor.py` → Processing logic
-
 ---
 
-### Layer 2: Classification & Analysis
-**What it does:** Classifies reviews into 5 predefined themes using Gemini LLM, determines sentiment (positive/negative/neutral), calculates confidence scores.
+## Installation
 
-**5 Themes:**
-1. Execution & Performance (order delays, crashes, lag)
-2. Payments & Withdrawals (payment issues, refund delays)
-3. Charges & Transparency (brokerage complaints, hidden fees)
-4. KYC & Access (account access, re-KYC issues)
-5. UI & Feature Gaps (interface issues, missing tools)
+### Prerequisites
 
-**Output:**
-- `review_classified_YYYYMMDD_YYYYMMDD.json` (classified reviews)
-- `review_classified_YYYYMMDD_YYYYMMDD.csv`
-- `logs/classifier_YYYYMMDD.log`
+- Python 3.11+
+- pip (Python package manager)
+- Google Gemini API key (free tier available at https://ai.google.dev)
+- Git
 
-**Files:**
-- `layer2_classification/review_classifier.py` → ReviewClassifier class
-- `layer2_classification/classify_config.py` → Config + themes + prompts
+### Setup Steps
+
+**1. Clone the repository**
+```bash
+git clone https://github.com/Vishal0123456789/app-review-analyzer.git
+cd app-review-analyzer
+```
+
+**2. Create and activate virtual environment (recommended)**
+```bash
+python -m venv venv
+# On Windows
+venv\Scripts\activate
+# On macOS/Linux
+source venv/bin/activate
+```
+
+**3. Install dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+**4. Set up environment variables**
+```powershell
+# Windows PowerShell
+$env:GEMINI_API_KEY = "your-gemini-api-key"
+$env:SCHEDULER_ENABLED = "true"           # Optional, default: false
+$env:SCHEDULER_DAY = "mon"                # Optional, default: mon
+$env:SCHEDULER_HOUR = "8"                 # Optional, default: 8
+$env:SCHEDULER_TIMEZONE = "UTC"           # Optional, default: UTC
+```
+
+Or create a `.env` file (git-ignored):
+```
+GEMINI_API_KEY=your-gemini-api-key
+SCHEDULER_ENABLED=true
+SCHEDULER_DAY=mon
+SCHEDULER_HOUR=8
+SCHEDULER_TIMEZONE=UTC
+```
 
 ---
-
-### Layer 3: Insights & Weekly Pulse
-**What it does:** Uses MAP-REDUCE pipeline to aggregate reviews by theme, extract key points and quotes, generate a ≤250-word weekly pulse note with action ideas.
-
-**Output:**
-- `review_theme_summaries_YYYYMMDD.json` (theme aggregations)
-- `review_pulse_YYYYMMDD.json` (final pulse note)
-- `logs/insights_YYYYMMDD.log`
-
-**Files:**
-- `layer3_insights/weekly_pulse_generator.py` → WeeklyPulseGenerator class
-- `layer3_insights/insights_config.py` → Config + MAP-REDUCE prompts
-
----
-
-### Layer 4: Email Generation & Delivery
-**What it does:** Generates email subject and body using Gemini LLM, sends via SMTP (or mock mode for testing).
-
-**Output:**
-- `email_send_log_YYYY-MM-DD.json` (email metadata)
-- `logs/email_YYYYMMDD.log`
-
-**Files:**
-- `layer4_email/email_pulse_sender.py` → EmailPulseSender class
-- `layer4_email/email_config.py` → Config + email templates
-
----
-
-## Architecture Overview
 
 ## Usage
 
-### Web Interface (Easiest Way)
+### Start the Application
 
-A modern, responsive React web interface is available for interactive analysis.
-
-**Features:**
-- 🎨 Clean, intuitive UI with real-time status
-- 📱 Fully responsive (desktop & mobile)
-- 🔍 Select analysis window (7-56 days)
-- 📧 Optional email recipient (in addition to default)
-- 📥 Download pulse results as JSON
-- ⚡ Live analysis progress indicator
-
-**Setup:**
-```powershell
-# Install frontend dependencies (first time only)
-cd frontend
-npm install
+**Using uvicorn (recommended):**
+```bash
+python -m uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-**Run (2 terminals):**
+**Application will be available at:**
+- Frontend UI: http://localhost:8000
+- API: http://localhost:8000/api
 
-*Terminal 1 - Backend:*
+### Manual Analysis (Frontend)
+
+1. Open http://localhost:8000 in your browser
+2. Select analysis window (7-35 days)
+3. (Optional) Enter email to receive report
+4. Click "Analyze" button
+5. Monitor real-time progress (4 steps, ~240 seconds)
+6. Results displayed with theme breakdown and action items
+
+### Automatic Scheduler
+
+Enable automatic weekly analysis:
+
 ```powershell
-$env:GEMINI_API_KEY = "your-gemini-api-key"
-python -m uvicorn app:app --reload --host 0.0.0.0 --port 8000
+$env:SCHEDULER_ENABLED = "true"
+python -m uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
-*Terminal 2 - Frontend:*
+Scheduler will automatically run every Monday at 8:00 AM UTC (configurable).
+
+### Check Scheduler Status
+
 ```powershell
-cd frontend
-npm run dev
+$response = Invoke-RestMethod -Uri "http://localhost:8000/api/scheduler-status"
+$response.scheduler | ConvertTo-Json
 ```
 
-Open: **http://localhost:5173**
+Expected response:
+```json
+{
+  "enabled": true,
+  "running": true,
+  "schedule": "mon 08:00",
+  "timezone": "UTC",
+  "next_run": "2025-12-08 08:00:00 UTC"
+}
+```
 
 ---
 
-### Command Line (Automation)
+## API Endpoints
 
-For scheduled runs or CI/CD pipelines.
-```powershell
-# Set required environment variable
-$env:GEMINI_API_KEY = "your-gemini-api-key"
-$env:TO_EMAILS = "recipient@example.com"  # Optional, defaults to sender
+### 1. Analyze (Manual Trigger)
 
-# Run all 4 layers in sequence
-cd "c:\Users\satis\Milestone 2"
-python orchestrator.py
+**POST** `/api/analyze`
+
+Trigger analysis pipeline with custom parameters.
+
+**Request:**
+```json
+{
+  "window_days": 7,
+  "email": "user@example.com"
+}
 ```
 
-### Custom Options
-```powershell
-# Run with custom date window (default: 28 days)
-python orchestrator.py --window-days 14
+**Parameters:**
+- `window_days` (integer, required): Analysis window (7-35 days)
+- `email` (string, optional): Additional recipient email
 
-# Run with 7-day lookback
-python orchestrator.py --window-days 7
-
-# Run with 60-day lookback
-python orchestrator.py --window-days 60
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Weekly pulse generated and emails sent.",
+  "window_days": 7,
+  "pulse_file_name": "review_pulse_20251123_20251205.json",
+  "pulse_data": {
+    "start_date": "2025-11-23",
+    "end_date": "2025-12-05",
+    "top_themes": [...],
+    "quotes": [...],
+    "action_ideas": [...]
+  }
+}
 ```
 
-### What Happens
-When you run `orchestrator.py`:
-1. **Layer 1** (10-15 sec): Scrapes reviews, applies filters, saves to `data/`
-2. **Layer 2** (30-60 sec): Classifies reviews using LLM, saves to `data/`
-3. **Layer 3** (20-30 sec): Generates theme summaries and pulse note, saves to `data/`
-4. **Layer 4** (10-20 sec): Creates and sends email, saves log to `data/`
-5. **Orchestrator** saves execution summary to `data/workflow_summary_*.json`
+### 2. Scheduler Status
 
-**Total time:** ~2-3 minutes per run
+**GET** `/api/scheduler-status`
 
-### Output Files
-After running on Dec 1, 2025, you'll have:
+Get scheduler configuration and next run time.
 
-**Data (in `data/` directory):**
-- `review_transformed_20251104_20251201.json` (Layer 1)
-- `review_transformed_20251104_20251201.csv` (Layer 1)
-- `review_classified_20251104_20251201.json` (Layer 2)
-- `review_classified_20251104_20251201.csv` (Layer 2)
-- `review_theme_summaries_20251201.json` (Layer 3)
-- `review_pulse_20251201.json` (Layer 3)
-- `email_send_log_2025-12-01.json` (Layer 4)
-- `workflow_summary_2025-12-01_HH-MM-SS.json` (Orchestrator)
-
-**Logs (in `logs/` directory):**
-- `scheduler_20251201.log` (Layer 1)
-- `classifier_20251201.log` (Layer 2)
-- `insights_20251201.log` (Layer 3)
-- `email_20251201.log` (Layer 4)
-- `orchestrator_20251201.log` (Orchestrator)
-
-
-## Data Flow
-
-```
-Google Play Store API (~4000 reviews)
-         ↓
-LAYER 1: Scraping & Storage (10-15 sec)
-  ├─ Filter: relevance > 0 (thumbsUpCount)
-  ├─ Filter: last 28 days
-  ├─ PII redaction (emails, phone, PAN, Aadhaar)
-  ├─ Emoji removal
-  ├─ Text normalization
-  └─ Output: ~150-200 clean reviews
-         ↓
-LAYER 2: Classification & Analysis (30-60 sec)
-  ├─ Classify into 5 themes (Gemini LLM)
-  ├─ Determine sentiment (positive/negative/neutral)
-  ├─ Calculate confidence (0.0-1.0)
-  └─ Output: ~150-200 classified reviews
-         ↓
-LAYER 3: Insights & Weekly Pulse (20-30 sec)
-  ├─ Group by theme
-  ├─ MAP stage: Extract key points & quotes per theme
-  ├─ REDUCE stage: Generate final pulse note
-  └─ Output: Theme summaries + pulse note (≤250 words)
-         ↓
-LAYER 4: Email Generation & Delivery (10-20 sec)
-  ├─ Generate email subject (Gemini LLM)
-  ├─ Generate email body (Gemini LLM, formatted for 3 audiences)
-  ├─ Send via SMTP or mock mode
-  └─ Output: Email log + receipt
-         ↓
-OrchestratorSummary
-  └─ Save execution summary (status, timestamps, file paths)
+**Response:**
+```json
+{
+  "status": "success",
+  "scheduler": {
+    "enabled": true,
+    "running": true,
+    "schedule": "mon 08:00",
+    "timezone": "UTC",
+    "next_run": "2025-12-08 08:00:00 UTC"
+  }
+}
 ```
 
-## Key Metrics
+### 3. Download Pulse
 
-| Metric | Value |
-|--------|-------|
-| Total Reviews (Layer 1) | 170 |
-| Themes | 5 (predefined) |
-| Sentiment Types | 3 (positive, negative, neutral) |
-| Average Confidence | 91.7% |
-| Fallback Rate | 0% |
+**GET** `/api/download-pulse?file=review_pulse_YYYYMMDD_YYYYMMDD.json`
 
-### Theme Distribution
-- Execution & Performance: 35.9% (61 reviews)
-- UI & Feature Gaps: 34.1% (58 reviews)
-- Charges & Transparency: 12.4% (21 reviews)
-- Payments & Withdrawals: 11.2% (19 reviews)
-- KYC & Access: 6.5% (11 reviews)
+Download previously generated pulse files.
 
-### Sentiment Distribution
-- Negative: 67.6% (115 reviews)
-- Positive: 20.0% (34 reviews)
-- Neutral: 12.4% (21 reviews)
+---
 
 ## Configuration
 
-### Required: Gemini API Key
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GEMINI_API_KEY` | Required | Google Gemini API key |
+| `SCHEDULER_ENABLED` | false | Enable auto-scheduler |
+| `SCHEDULER_DAY` | mon | Day of week (mon-sun) |
+| `SCHEDULER_HOUR` | 8 | Hour (0-23) |
+| `SCHEDULER_MINUTE` | 0 | Minute (0-59) |
+| `SCHEDULER_TIMEZONE` | UTC | Timezone (e.g., Asia/Kolkata) |
+| `SCHEDULER_WINDOW_DAYS` | 7 | Analysis window (7-35) |
+| `DEFAULT_EMAIL` | agraharivishal19981@gmail.com | Default recipient |
+| `PORT` | 8000 | Server port |
+| `TO_EMAILS` | - | Additional recipients (comma-separated) |
+| `SMTP_USERNAME` | - | SMTP username (for email sending) |
+| `SMTP_PASSWORD` | - | SMTP password (for email sending) |
+
+### Common Configurations
+
+**Development (Manual Only):**
 ```powershell
-$env:GEMINI_API_KEY = "your-gemini-api-key-here"
+$env:SCHEDULER_ENABLED = "false"
+$env:GEMINI_API_KEY = "your-key"
 ```
-Get your key: https://aistudio.google.com/app/apikeys
 
-### Optional: Email Recipients
+**Production (With Scheduler - UTC):**
 ```powershell
-# For command line (env var)
-$env:TO_EMAILS = "recipient1@example.com,recipient2@example.com"
-
-# For web interface: enter in the form field (optional)
-# Always sends to default: agraharivishal19981@gmail.com
+$env:SCHEDULER_ENABLED = "true"
+$env:SCHEDULER_DAY = "mon"
+$env:SCHEDULER_HOUR = "8"
+$env:SCHEDULER_TIMEZONE = "UTC"
+$env:GEMINI_API_KEY = "your-key"
 ```
 
-### Optional: SMTP Credentials (for real email sending)
+**Production (With Scheduler - Asia/Kolkata):**
 ```powershell
-$env:SMTP_USERNAME = "your-gmail@gmail.com"
-$env:SMTP_PASSWORD = "your-gmail-app-password"
-# Uses mock mode if not set (logs email instead of sending)
-```
-
-### Layer-Specific Configuration
-
-**Layer 1** (`layer1_scraping/scheduler_runner.py`):
-- LOOKBACK_DAYS = 28 (last 4 weeks)
-- MIN_WORD_COUNT = 10 (filter short reviews)
-- APP_ID = 'com.nextbillion.groww'
-
-**Layer 2** (`layer2_classification/classify_config.py`):
-- GEMINI_MODEL = 'gemini-2.5-flash'
-- BATCH_SIZE = 20 (reviews per LLM call)
-- CONFIDENCE_THRESHOLD = 0.4
-
-**Layer 3** (`layer3_insights/insights_config.py`):
-- MAP_CHUNK_SIZE = 20 (reviews per chunk)
-- TOP_THEMES_COUNT = 3 (top themes in pulse)
-- MAX_WORD_COUNT = 250 (pulse note limit)
-
-**Layer 4** (`layer4_email/email_config.py`):
-- FROM_EMAIL = 'agraharivishal1998@gmail.com'
-- TO_EMAILS = (from env var)
-- USE_MOCK_SEND = False (set to True to skip email sending)
-
-## Output Schemas
-
-### Layer 1 Output (Raw Reviews)
-```json
-{
-  "review_id": "uuid",
-  "date": "2025-12-01",
-  "week_start_date": "2025-11-24",
-  "week_end_date": "2025-11-30",
-  "rating": 4,
-  "title": "17.96.7",
-  "text": "original text with [PII_REDACTED]",
-  "clean_text": "lowercase normalized text",
-  "relevance": 5,
-  "source": "google_play"
-}
-```
-
-### Layer 2 Output (Classified Reviews)
-```json
-{
-  "review_id": "uuid",
-  "date": "2025-12-01",
-  "rating": 4,
-  "title": "17.96.7",
-  "text": "original text",
-  "clean_text": "normalized text",
-  "sentiment": "positive",
-  "review_theme": "Execution & Performance",
-  "confidence": 0.92,
-  "reason": "app crashes",
-  "llm_suggested_theme": null,
-  "fallback_applied": false
-}
-```
-
-### Layer 3 Output (Weekly Pulse)
-```json
-{
-  "start_date": "2025-11-04",
-  "end_date": "2025-12-01",
-  "top_themes": [
-    {"theme": "Execution & Performance", "summary_bullets": [...]},
-    {"theme": "UI & Feature Gaps", "summary_bullets": [...]},
-    {"theme": "Payments & Withdrawals", "summary_bullets": [...]}
-  ],
-  "quotes": ["user quote 1", "user quote 2", "user quote 3"],
-  "action_ideas": ["action 1", "action 2", "action 3"],
-  "note_markdown": "Weekly App Review Pulse... (≤250 words)"
-}
-```
-
-### Layer 4 Output (Email Log)
-```json
-{
-  "week_start_date": "2025-11-04",
-  "week_end_date": "2025-12-01",
-  "product_name": "Groww Android App",
-  "to": ["recipient@example.com"],
-  "from": "sender@example.com",
-  "subject": "Weekly Product Pulse – Groww (2025-11-04–2025-12-01)",
-  "sent_at": "2025-12-01T14:30:45.123456",
-  "status": "success|mock",
-  "error_message": null
-}
-```
-
-## Scheduling for Production
-
-### Windows Task Scheduler
-Create a batch file `run_weekly_pulse.bat`:
-```batch
-@echo off
-cd /d "c:\Users\satis\Milestone 2"
-set GEMINI_API_KEY=your-api-key
-set TO_EMAILS=recipient@example.com
-python orchestrator.py >> logs\scheduled_runs.log 2>&1
-```
-
-Then schedule it in Task Scheduler:
-1. Open `taskschd.msc`
-2. Create Basic Task
-3. Trigger: Weekly (e.g., Monday 8:00 AM)
-4. Action: Run `run_weekly_pulse.bat`
-
-### Linux/Mac Cron Job
-```bash
-# Edit crontab
-crontab -e
-
-# Add line (runs every Monday at 8 AM)
-0 8 * * 1 cd /path/to/Milestone\ 2 && GEMINI_API_KEY=your-key TO_EMAILS=recipient@email.com python orchestrator.py >> logs/scheduled_runs.log 2>&1
+$env:SCHEDULER_ENABLED = "true"
+$env:SCHEDULER_HOUR = "18"
+$env:SCHEDULER_TIMEZONE = "Asia/Kolkata"
+$env:GEMINI_API_KEY = "your-key"
 ```
 
 ---
 
-## Logging
+## Email Report Format
 
-All logs are stored in `logs/` directory with date-based filenames:
-- `scheduler_YYYYMMDD.log` - Layer 1 execution
-- `classifier_YYYYMMDD.log` - Layer 2 execution
-- `insights_YYYYMMDD.log` - Layer 3 execution
-- `email_YYYYMMDD.log` - Layer 4 execution
-- `orchestrator_YYYYMMDD.log` - Main orchestrator
+Generated emails include:
 
-**Check logs:**
-```powershell
-# View latest orchestrator log
-Get-Content logs/orchestrator_*.log -Tail 50
+1. **Header Bar**: Navy/teal gradient with "Weekly Product Pulse" title and date range
+2. **Greeting**: Personalized opening ("Hi Team,")
+3. **Key Insights Dashboard**: 3 colored priority cards
+   - **CRITICAL** (Red): Execution & Performance issues
+   - **HIGH** (Amber): UI & Feature Gaps
+   - **FOCUS** (Yellow): Charges & Transparency concerns
+4. **Detailed Analysis**: Per-theme sections with:
+   - Theme sentiment summary
+   - Key issues and quotes
+   - User feedback bullets
+5. **Action Roadmap**: Prioritized action items with timelines
+6. **Content Limit**: Strictly under 350 words
 
-# View latest layer logs
-Get-Content logs/scheduler_*.log -Tail 20
+---
+
+## Testing
+
+### Unit Tests
+
+Run scheduler unit tests:
+```bash
+pip install pytest
+pytest test_scheduler.py -v
 ```
 
-## Documentation
+### Manual Testing
 
-For more details, check:
-- `README.md` - This file (main documentation)
-- `frontend/README.md` - Frontend setup and development guide
-- Inline code comments in layer files for implementation details
+Interactive test script:
+```powershell
+.\test_scheduler_manual.ps1
+```
 
-## Dependencies
+### API Testing
 
-- `google-play-scraper` - Google Play API
-- `google-generativeai` - Gemini Pro LLM
-- `requests` - HTTP client
-- `python-dateutil` - Date utilities
+Check scheduler status:
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8000/api/scheduler-status" | ConvertTo-Json
+```
 
-See `requirements.txt` for full list and versions.
+Trigger manual analysis:
+```powershell
+$body = @{ window_days = 7; email = "test@example.com" } | ConvertTo-Json
+Invoke-RestMethod -Uri "http://localhost:8000/api/analyze" `
+  -Method Post `
+  -Body $body `
+  -ContentType "application/json"
+```
 
-## Future Enhancements
+---
 
-- Multi-label classification (reviews in multiple themes)
-- Real-time streaming (Kafka, Pub/Sub)
-- Dashboard integration (Grafana, Tableau)
-- Alert system for critical issues
-- Trend analysis and anomaly detection
+## Troubleshooting
 
-## License
+### App won't start
 
-Proprietary - Internal Use Only
+**Issue**: Command exits silently
+**Solution**: Use `uvicorn` explicitly instead of `python app.py`
+```bash
+python -m uvicorn app:app --host 0.0.0.0 --port 8000
+```
+
+### Scheduler not running
+
+**Issue**: `running: false` in status endpoint
+**Solution**: Verify `SCHEDULER_ENABLED=true` and check logs
+```bash
+Get-Content logs/scheduler.log | Select-String "Scheduler"
+```
+
+### GEMINI_API_KEY error
+
+**Issue**: "GEMINI_API_KEY not set"
+**Solution**: Set environment variable before starting
+```powershell
+$env:GEMINI_API_KEY = "your-api-key"
+```
+
+### Wrong timezone in scheduler
+
+**Issue**: Next run time shows wrong timezone
+**Solution**: Verify `SCHEDULER_TIMEZONE` and restart app
+```powershell
+$env:SCHEDULER_TIMEZONE = "Asia/Kolkata"  # or your timezone
+```
+
+### Email not sending
+
+**Issue**: Analysis completes but no email received
+**Solution**: Check logs for SMTP errors; verify SMTP credentials if sending to custom email
+
+---
+
+## Documentation Files
+
+- **README.md** - This file; project overview and usage guide
+- **SCHEDULER_SETUP.md** - Quick start guide for scheduler
+- **SCHEDULER_CONFIG.md** - Detailed scheduler configuration reference
+- **SCHEDULER_TESTING.md** - Comprehensive testing guide
+- **SCHEDULER_API.md** - API endpoint documentation
+- **SCHEDULER_IMPLEMENTATION_SUMMARY.md** - Architecture details
+- **SCHEDULER_TESTING_QUICK_REFERENCE.md** - Quick test commands
+
+---
+
+## Technology Stack
+
+### Backend
+- **FastAPI** - REST API framework
+- **Uvicorn** - ASGI server
+- **Python 3.11** - Runtime
+- **APScheduler** - Automated task scheduling
+- **google-generativeai** - Gemini LLM integration
+- **google-play-scraper** - Review scraping
+
+### Frontend
+- **React 18** - UI framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling (dark theme)
+- **Vite** - Build tool
+
+### Email
+- **SMTP** - Email delivery
+- **HTML/CSS** - Professional email formatting
+
+---
+
+## Security
+
+### Credential Handling
+
+⚠️ **IMPORTANT**: Never commit API keys or credentials to git!
+
+- Store `GEMINI_API_KEY` only in environment variables
+- Use `.env` files locally (add to `.gitignore`)
+- For production, use secrets management (environment variables, secret managers, etc.)
+- The `.gitignore` file already excludes common credential files
+
+### Best Practices
+
+- Never hardcode API keys in source code
+- Rotate API keys periodically
+- Use environment-specific credentials
+- Monitor API usage for suspicious activity
+- Restrict API key permissions to minimum required scope
+
+---
+
+## Performance
+
+### Analysis Times
+
+- **Layer 1** (Scraping): ~60 seconds
+- **Layer 2** (Classification): ~60 seconds
+- **Layer 3** (Insights): ~60 seconds
+- **Layer 4** (Email): ~15 seconds
+- **Total**: ~195 seconds (3 minutes)
+
+### Optimization
+
+- Layer 1-3 run in parallel where possible
+- Frontend shows real-time progress
+- Results cached for faster download
+- Email generation optimized for <350 words
+
+---
+
+## Known Limitations
+
+1. **Google Play Scraper**: Limited to ~100 reviews per request (throttling/pagination handled)
+2. **Gemini API**: Free tier has quota limits; monitor usage
+3. **Email Delivery**: Depends on SMTP server availability
+4. **Timezone**: Must use standard timezone names (see APScheduler documentation)
+5. **Frontend Progress**: Timing is approximation; may not match actual backend execution
+
+---
+
+## Contributing
+
+Contributions are welcome! Please:
+
+1. Create a feature branch from `main`
+2. Make your changes with clear commit messages
+3. Test thoroughly before submitting
+4. Never commit API keys or credentials
+5. Follow existing code style and patterns
+6. Update documentation as needed
+
+---
 
 ## Support
 
-For issues or questions, refer to the documentation in `docs/` directory.
+### Getting Help
+
+- Check troubleshooting section above
+- Review scheduler documentation files
+- Check logs in `logs/` directory for detailed error messages
+- API responses include error messages and status codes
+
+### Common Issues
+
+- **ModuleNotFoundError**: Run `pip install -r requirements.txt`
+- **Port already in use**: Change PORT environment variable
+- **Timezone errors**: Use standard timezone names from Python `pytz` library
+- **API quota exceeded**: Wait for quota reset or upgrade Gemini plan
+
+---
+
+## License
+
+This project analyzes reviews for the Groww app. Use accordance with Groww's terms of service.
+
+---
+
+## Contact
+
+For questions or issues, please reach out to the development team or create an issue in the repository.
+
+---
+
+## Roadmap
+
+Future enhancements:
+- [ ] Multi-app support (not just Groww)
+- [ ] Advanced filtering and segmentation
+- [ ] Custom insight templates
+- [ ] Webhook notifications
+- [ ] Database storage (instead of JSON files)
+- [ ] Advanced analytics dashboard
+- [ ] Sentiment analysis enhancements
+- [ ] Multi-language support
+
+---
+
+## Changelog
+
+### v2.0.0 (2025-12-07)
+- Added auto-scheduler with APScheduler
+- Implemented professional HTML email reports
+- Enhanced frontend with dark theme and progress tracking
+- Added comprehensive testing suite
+- Restructured email with Key Insights Dashboard
+- Dual-mode orchestration (manual + automatic)
+
+### v1.0.0 (Earlier)
+- Initial release with 4-layer architecture
+- Manual analysis triggering
+- Basic email reports
+- React frontend with Tailwind CSS
