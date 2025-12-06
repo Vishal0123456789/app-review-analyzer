@@ -34,45 +34,140 @@ USE_MOCK_SEND = False  # Set to False to actually send emails
 GEMINI_MODEL = "gemini-2.5-flash"
 
 # Subject line prompt template
-SUBJECT_PROMPT_TEMPLATE = """You are generating a concise, informative subject line for a weekly internal product pulse email.
-Product name: {product_name}
-Week: {start_date} to {end_date}
+SUBJECT_PROMPT_TEMPLATE = """Generate a professional, urgent email subject line for a product pulse email.
+Product: {product_name}
+Period: {start_date} to {end_date}
 
-Return ONLY a single line of plain text, no quotes, no extra explanation.
-Format: Weekly Product Pulse – product_name (start_date–end_date)"""
+Format EXACTLY like this example:
+🚨 Groww App Pulse Deep Dive: [Top 3 Theme Names] ({start_date} - {end_date})
+
+Instructions:
+- Start with 🚨 emoji
+- Include product name
+- List the 3 top themes/pain points briefly
+- Include the date range in parentheses
+- Keep total length under 75 characters
+
+Return ONLY the subject line, no quotes, no explanation."""
 
 # Email body prompt template
-EMAIL_BODY_PROMPT_TEMPLATE = """You are drafting an internal email sharing the latest product pulse.
+EMAIL_BODY_PROMPT_TEMPLATE = """You are transforming a plaintext product pulse into a professional, modern Markdown-formatted email that looks like a data dashboard.
 
-Audience:
-- Product & Growth: want to see what to fix or double down on.
-- Support: want to know what to acknowledge and celebrate.
-- Leadership: want a quick pulse, key risks, and wins.
-
-Input (review_weekly_pulse JSON):
+Input (review_pulse JSON):
 {pulse_json}
 
 Metadata:
-- Product name: {product_name}
-- Time window: {start_date} to {end_date}
+- Product: {product_name}
+- Period: {start_date} to {end_date}
 
-Tasks:
-- Write an email BODY only (no subject line).
-- Structure:
-  1) 2–3 line intro explaining the time window and the product/program.
-  2) Embed the weekly pulse note in a clean, scannable format:
-     - Title: "Weekly App Review Pulse"
-     - Short overview (1–2 bullets)
-     - Bulleted Top 3 themes
-     - Bulleted 3 user quotes
-     - Bulleted 3 action ideas
-  3) End with a short closing line (1–2 sentences).
+=== OUTPUT REQUIREMENTS ===
 
-Constraints:
-- Professional, neutral tone with a hint of warmth.
-- No names, emails, or IDs. If present in quotes, anonymize generically (e.g., 'a user', 'one investor', 'one participant').
-- Keep the whole email under 350 words.
-- Output PLAIN TEXT only (no HTML, no markdown, no extra JSON)."""
+Your task is to create a Markdown email following this EXACT structure:
+
+**SECTION 1: OPENING (Greeting & Context)**
+- Start with: "Hi Team,"
+- Follow immediately with a single paragraph (2-3 sentences max) establishing:
+  * The purpose: "This is the weekly product pulse for {product_name}"
+  * The time period: "from {start_date} to {end_date}"
+  * The urgency: "Immediate attention is required to address critical user experience issues."
+- NO repeated content
+- Keep professional and concise
+
+---
+
+**SECTION 2: KEY INSIGHTS DASHBOARD (Critical - This is the visual hook)**
+- Create a 3-column Markdown table with headers: "**Theme**", "**Core Sentiment**", "**Priority Signal**"
+- Add exactly 3 rows (one for each top theme from the input)
+- For Priority Signal, use ONLY: CRITICAL, HIGH, or FOCUS (no emojis in table cells)
+- Ensure table formatting is clean and professional
+- This table is the immediate visual summary that tells the reader the status in 3 seconds
+
+---
+
+**SECTION 3: THEMATIC SECTIONS (Detailed Analysis)**
+- For each top theme (in order), create a section with:
+  * Heading: ### 1. [Theme Name] ([Specific Impact/Subtitle])
+  * Body: 1-2 paragraphs explaining the issue and user impact
+  * Sub-bullets: Use • (bullet) with relevant issues (specific data, not generic)
+  * User Quotes: Include 1-2 actual quotes from the input in format: > "quote text"
+  * Blank line after each theme section
+
+**SECTION 4: ACTION ROADMAP (Recommended Action Items)**
+- Use heading: ### Recommended Action Items
+- Brief intro: "Address these critical pain points with the following priorities:"
+- For each action item:
+  * Line 1: **[Action Title]** (in bold)
+  * Line 2: Brief description of what needs to be done
+  * Line 3: **Target:** [Timeline, e.g., "Next 2 Sprints"]
+  * Blank line between items
+
+**SECTION 5: CLOSING**
+- End with an engaging question that prompts decision-making
+- Example: "Which action item should we prioritize first?"
+- Keep it conversational and action-oriented
+
+=== FORMATTING RULES ===
+
+1. Content Preservation: Use EXACT text from input (don't paraphrase)
+2. NO Duplicate Content: Each section appears exactly once with unique content
+3. Markdown Features:
+   - Use ### for main theme headings only (3 times max for themes)
+   - Use > for quotes (blockquote format)
+   - Use • for bullet points
+   - Use **text** for bold
+   - Use --- for horizontal rules (section separators)
+   - Use | for table formatting
+4. Professional tone with strategic emphasis
+5. Length: Keep total under 350 words
+6. NO emojis in body text (they're handled in HTML rendering)
+
+=== EXAMPLE OUTPUT STRUCTURE ===
+
+Hi Team,
+
+This is the weekly product pulse for Groww Android App from 2025-11-30 to 2025-12-05. This consolidates critical user feedback and insights across our platform. Immediate attention is required to address core user experience issues.
+
+---
+
+| **Theme** | **Core Sentiment** | **Priority Signal** |
+|---|---|---|
+| Execution & Performance | Users experiencing crashes and delays | CRITICAL |
+| UI & Feature Gaps | Navigation and data visibility issues | HIGH |
+| Charges & Transparency | Lack of clarity on fees | FOCUS |
+
+---
+
+### 1. Execution & Performance (Stability & Accuracy Concerns)
+
+[2-3 paragraphs explaining the issue, user impact, and context]
+
+• [Specific issue 1]
+• [Specific issue 2]
+• [Specific issue 3]
+
+> "User quote demonstrating the issue"
+
+### 2. UI & Feature Gaps (User Navigation & Discovery)
+
+[Content for theme 2...]
+
+### Recommended Action Items
+
+Address these critical pain points with the following priorities:
+
+**Action Item 1 Title**
+Brief description of what needs to be done.
+**Target:** Next 2 Sprints
+
+**Action Item 2 Title**
+Brief description.
+**Target:** Next 3 Sprints
+
+Which action item should we prioritize first?
+
+=== END REQUIREMENTS ===
+
+Generate the complete email now in Markdown format."""
 
 # Logging
 from datetime import datetime

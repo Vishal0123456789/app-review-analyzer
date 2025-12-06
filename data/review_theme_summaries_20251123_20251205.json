@@ -1,0 +1,62 @@
+[
+  {
+    "theme": "Execution & Performance",
+    "review_count": 31,
+    "aggregated_key_points": [
+      "App Stability & Data Accuracy: Frequent reports of technical glitches, including app crashes, unresponsiveness, difficulties opening option chains, and issues with live data display or chart accuracy.",
+      "Order Execution & Performance: Concerns regarding slow order execution in option trading, stop-loss orders exiting at unfavorable prices, and occasional blocking of buy/sell functionalities during market volatility.",
+      "User Interface & Trading Experience: While some users find the platform smooth and easy for investment, others criticize frequent interface changes, limited indicators, and a lack of user-friendliness for F&O trading.",
+      "Brokerage & Hidden Charges: There are complaints about high brokerage fees and perceived additional charges compared to competing platforms.",
+      "Positive Aspects: A segment of users commends the app for smooth performance, fast response, and overall reliability, particularly for long-term investing.",
+      "Users frequently report app outages, crashes, or failures to open, preventing access and trading.",
+      "Specific issues are noted in option trading, where positions may not display after order execution, leading to reported user losses.",
+      "Glitches have caused discrepancies between displayed trade information/amounts and actual results.",
+      "Technical errors, such as data fetching issues, have rendered the app unresponsive or improperly functioning for periods."
+    ],
+    "aggregated_candidate_quotes": [
+      "too much glitch, option chain not open properly sometime working sometimes not working.",
+      "too late response in option trading.. even after setting the stop loss at a particular price, it always exits later at a more lower price resulting in loss.",
+      "something went wrong, live values cannot be shown, you are doing this frequently",
+      "application glith shows something and the actual result is different.",
+      "many times in option trading after taking a trade, position doesn't show for a long time and due to this we get losses and losses.",
+      "app got struck even i can't login, please fix this error"
+    ]
+  },
+  {
+    "theme": "UI & Feature Gaps",
+    "review_count": 23,
+    "aggregated_key_points": [
+      "Users frequently request more advanced charting tools and indicators (e.g., Fibonacci, Pivot Point Standard), along with integrated stop-loss and target setting directly on charts.",
+      "Several critical data and feature gaps are reported, including missing mutual fund holdings information, specific stock indexes, 'trade value' on mobile, and 10-year historical data for mutual funds. Users also desire enhanced watchlist functionality like saving initial stock prices and a screener-like view.",
+      "UI and workflow usability issues include small font size, lack of confirmation prompts for feature activation/deactivation, inefficient navigation requiring multiple taps on holding pages, and dissatisfaction with the display in the new option chain.",
+      "Users find the dashboard messy when managing multiple funds of different categories and request grouping or categorization features.",
+      "There is a request for 24/7 real-time total portfolio percentage of profit or loss, replacing daily alerts.",
+      "A bug has been reported where portfolio stocks are incorrectly displayed in the wishlist.",
+      "The app currently lacks support for dual apps or clone app functionality on certain Android devices."
+    ],
+    "aggregated_candidate_quotes": [
+      "it is very annoying to have clicked some buttons accidentally causing unintended activation of services.",
+      "very difficult to add or remove any tools lines, trendline etc",
+      "app font is very small. small font of app is confusing every time.",
+      "dashboard seems messy if we have multiple funds of different categories.",
+      "add real time total portfolio percentage of profit or loss for 24×7",
+      "bug in wishlist"
+    ]
+  },
+  {
+    "theme": "Charges & Transparency",
+    "review_count": 7,
+    "aggregated_key_points": [
+      "The introduction of a minimum brokerage fee (e.g., ₹5) has led some users to discontinue new investments.",
+      "Many users perceive the app to have high brokerage fees, charges, and taxes, significantly impacting their net profits.",
+      "Users express dissatisfaction with unexpected charges, such as for editing personal details, and a general lack of transparency regarding fee structures.",
+      "There are complaints about customer care not providing proper explanations for various charges.",
+      "Feedback on brokerage and account maintenance fees is mixed, with some users rating them as 'excellent' while others find them excessive."
+    ],
+    "aggregated_candidate_quotes": [
+      "i have already discontinued using groww for new stock investments following the introduction of the minimum brokerage fee of ₹5.",
+      "too much charges and taxes. if you get 100rs profit 50-60rs will be taxes while buying and for maintaining and for even selling the stocks!",
+      "unnecessary charges and no proper explanation from the customer care."
+    ]
+  }
+]

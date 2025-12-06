@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 
-// Get API URL from environment - for Vercel, it's injected into HTML meta tag
+// Get API URL from environment
 const getApiUrl = (): string => {
-  // Try to get from meta tag (set in index.html)
   const metaTag = document.querySelector('meta[name="api-url"]');
   let url = '';
   
@@ -15,7 +14,6 @@ const getApiUrl = (): string => {
     url = 'http://localhost:8000';
   }
   
-  // Remove trailing slash if present
   return url.endsWith('/') ? url.slice(0, -1) : url;
 };
 
@@ -44,35 +42,88 @@ interface AnalyzeResponse {
   };
 }
 
+type AnalysisStep = 'idle' | 'fetching' | 'classifying' | 'generating' | 'delivery' | 'complete';
+
 function App() {
-  const [windowDays, setWindowDays] = useState(28);
+  const [windowDays, setWindowDays] = useState(7);
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<PulseData | null>(null);
   const [pulseFileName, setPulseFileName] = useState('');
+  const [currentStep, setCurrentStep] = useState<AnalysisStep>('idle');
+  const [expandedTheme, setExpandedTheme] = useState<number | null>(null);
+
+  const weeklyOptions = [
+    { label: 'Last 1 week', days: 7 },
+    { label: 'Last 2 weeks', days: 14 },
+    { label: 'Last 3 weeks', days: 21 },
+    { label: 'Last 4 weeks', days: 28 },
+    { label: 'Last 5 weeks', days: 35 },
+  ];
+
+  const analysisSteps = [
+    { id: 'fetching', label: 'Fetching Data', description: 'Collecting reviews from the Play Store...' },
+    { id: 'classifying', label: 'Classifying Sentiment', description: 'Applying NLP to sort reviews into 5 core categories...' },
+    { id: 'generating', label: 'Generating Pulse Report', description: 'Structuring key insights and actionable ideas...' },
+    { id: 'delivery', label: 'Delivery & Finalizing', description: 'Formatting email and sending...' },
+  ];
 
   const validateForm = (): boolean => {
-    if (windowDays < 7 || windowDays > 56) {
-      setError('Window must be between 7 and 56 days.');
+    if (windowDays < 7 || windowDays > 35) {
+      setError('Window must be between 7 and 35 days.');
       return false;
     }
     return true;
+  };
+
+  const getStepStatus = (stepId: string) => {
+    const steps = ['fetching', 'classifying', 'generating', 'delivery'];
+    const currentIndex = steps.indexOf(currentStep as any);
+    const stepIndex = steps.indexOf(stepId as any);
+    
+    if (currentIndex > stepIndex) return 'complete';
+    if (currentIndex === stepIndex) return 'active';
+    return 'pending';
   };
 
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setResult(null);
+    setCurrentStep('fetching');
 
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      setCurrentStep('idle');
+      return;
+    }
 
     setLoading(true);
+    
+    // ... existing code ...
+    
+    // Step progression with longer intervals and smarter timing
+    const stepProgression = ['fetching', 'classifying', 'generating', 'delivery'];
+    let stepIndex = 0;
+    
+    // Longer, more realistic step durations
+    const stepDurations = [60000, 60000, 60000, 15000]; // milliseconds for each step (60s, 60s, 60s, 15s)
+    let currentStepStartTime = Date.now();
+    
+    const stepInterval = setInterval(() => {
+      if (stepIndex < stepProgression.length - 1) {
+        const elapsedInStep = Date.now() - currentStepStartTime;
+        if (elapsedInStep >= stepDurations[stepIndex]) {
+          stepIndex++;
+          setCurrentStep(stepProgression[stepIndex] as AnalysisStep);
+          currentStepStartTime = Date.now();
+        }
+      }
+    }, 1000); // Check every second instead of every 3 seconds
 
     try {
-      // Create abort controller with 20-minute timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1200000); // 20 minutes
+      const timeoutId = setTimeout(() => controller.abort(), 1200000);
       
       const response = await fetch(`${API_BASE_URL}/api/analyze`, {
         method: 'POST',
@@ -87,12 +138,14 @@ function App() {
       });
       
       clearTimeout(timeoutId);
+      clearInterval(stepInterval);
 
       const data: AnalyzeResponse = await response.json();
 
       if (!response.ok) {
         const errorMsg = data.detail?.message || data.message || 'Analysis failed';
         setError(errorMsg);
+        setCurrentStep('idle');
         setLoading(false);
         return;
       }
@@ -100,12 +153,15 @@ function App() {
       if (data.status === 'success' && data.pulse_data) {
         setResult(data.pulse_data);
         setPulseFileName(data.pulse_file_name || '');
+        setCurrentStep('complete');
         setError('');
       } else {
         setError(data.message || 'Unknown error');
+        setCurrentStep('idle');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error');
+      setCurrentStep('idle');
     } finally {
       setLoading(false);
     }
@@ -126,68 +182,68 @@ function App() {
     document.body.removeChild(a);
   };
 
-  const statusMessage = loading
-    ? '⏳ Analysis in progress (may take up to 15 minutes)…'
-    : result
-      ? '✨ Analysis completed. Emails sent.'
-      : error
-        ? `Error: ${error}`
-        : 'Select a window and click Analyze.';
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-blue-50/40 text-slate-900 font-body py-6 px-4 md:px-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-6 px-4 md:px-6 relative overflow-hidden">
+      {/* Geometric Background Pattern */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-10 w-72 h-72 bg-teal-500/10 rounded-full mix-blend-screen filter blur-3xl"></div>
+        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full mix-blend-screen filter blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-blue-500/5 rounded-full mix-blend-screen filter blur-3xl"></div>
+      </div>
+
       {/* Mobile Sticky Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-teal-500/30 shadow-lg">
         <div className="px-4 py-4 flex flex-col items-center justify-center text-center">
-          <h2 className="text-xl font-bold text-gray-900">🚀 Groww App Review Insights Analyzer</h2>
-          <p className="text-sm text-gray-600 mt-2 leading-relaxed">Your shortcut to understanding Groww users — fast, clear, and actionable.</p>
+          <h2 className="text-xl font-bold text-white">Groww App Review Insights Analyzer</h2>
+          <p className="text-xs text-teal-300 mt-1">The Real-Time Voice of Your Users</p>
         </div>
       </div>
       
-      {/* Hero Section with top padding for mobile (hidden on mobile, shown on desktop) */}
-      <div className="hidden md:block max-w-3xl mx-auto mb-12 md:mb-16">
+      {/* Hero Section */}
+      <div className="hidden md:block max-w-4xl mx-auto mb-16 relative z-10 pt-8">
         <div className="text-center">
-          <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-3 md:mb-4">
-            🚀 Groww App Review Insights Analyzer
+          <h1 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-teal-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent mb-4">
+            Groww App Review Insights Analyzer
           </h1>
-          <p className="text-base md:text-xl text-gray-600 leading-relaxed">
-            Your shortcut to understanding Groww users — fast, clear, and actionable.
+          <p className="text-lg md:text-xl text-slate-300 leading-relaxed">
+            The Real-Time Voice of Your Users. Fast, Classified, and Actionable.
           </p>
         </div>
       </div>
 
       {/* Main Content Grid */}
-      <div className="max-w-6xl mx-auto pt-32 md:pt-0">
+      <div className="max-w-7xl mx-auto pt-24 md:pt-0 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-start md:h-screen md:overflow-hidden">
           {/* Form Card - Left Column */}
           <div className="md:col-span-1 flex justify-center md:justify-start">
-            <div className="w-full md:w-[480px] bg-white rounded-3xl shadow-2xl shadow-gray-300/50 border border-gray-200 p-8 md:p-10 sticky top-6">
-              <form onSubmit={handleAnalyze} className="space-y-5">
-                {/* Window Days Input */}
+            <div className="w-full md:w-[500px] bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-teal-500/30 p-8 md:p-10 sticky top-6">
+              <form onSubmit={handleAnalyze} className="space-y-6">
+                {/* Window Days Dropdown */}
                 <div>
-                  <label htmlFor="windowDays" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="windowDays" className="block text-sm font-semibold text-white mb-2">
                     Analysis Window
-                    <span className="text-gray-400 font-normal ml-1 text-sm">(Pick how far back we should fetch Groww reviews)</span>
                   </label>
-                  <input
+                  <select
                     id="windowDays"
-                    type="number"
-                    min="7"
-                    max="56"
                     value={windowDays}
                     onChange={(e) => {
-                      setWindowDays(parseInt(e.target.value) || 28);
+                      setWindowDays(parseInt(e.target.value));
                       setError('');
                     }}
-                    className="w-full h-12 px-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 placeholder-gray-500"
-                  />
-                  <p className="text-xs text-gray-500 mt-2">7–56 days</p>
+                    className="w-full h-12 px-4 border border-teal-500/50 bg-slate-800/50 rounded-xl focus:ring-2 focus:ring-teal-400 focus:border-transparent transition text-white placeholder-slate-400 font-medium"
+                  >
+                    {weeklyOptions.map((option) => (
+                      <option key={option.days} value={option.days} className="bg-slate-900">
+                        {option.label} ({option.days} days)
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Email Input */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Your Email
+                  <label htmlFor="email" className="block text-sm font-semibold text-white mb-2">
+                    Your Email <span className="text-slate-400 font-normal">(Optional)</span>
                   </label>
                   <input
                     id="email"
@@ -198,51 +254,83 @@ function App() {
                       setError('');
                     }}
                     placeholder="you@example.com"
-                    className="w-full h-12 px-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 placeholder-gray-500"
+                    className="w-full h-12 px-4 border border-teal-500/50 bg-slate-800/50 rounded-xl focus:ring-2 focus:ring-teal-400 focus:border-transparent transition text-white placeholder-slate-400"
                   />
-                  <p className="text-xs text-gray-500 mt-2">Optional</p>
                 </div>
 
                 {/* Analyze Button */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full h-12 rounded-xl font-semibold transition-all ${
+                  className={`w-full h-12 rounded-xl font-bold text-white transition-all duration-300 ${
                     loading
-                      ? 'bg-gray-400 text-white cursor-not-allowed'
-                      : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:scale-[1.02] hover:shadow-xl active:scale-95'
+                      ? 'bg-gradient-to-r from-slate-600 to-slate-700 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 hover:scale-[1.02] hover:shadow-lg hover:shadow-teal-500/50 active:scale-95'
                   }`}
                 >
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
                       <span className="inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                      Analyzing…
+                      Analyzing
                     </span>
                   ) : (
-                    'Analyze'
+                    'Analyze Reviews'
                   )}
                 </button>
               </form>
 
+              {/* Multi-Step Tracker */}
+              {loading && (
+                <div className="mt-8 space-y-4">
+                  <div className="text-xs font-semibold text-teal-300 uppercase tracking-wider">Analysis Progress</div>
+                  {analysisSteps.map((step, idx) => {
+                    const status = getStepStatus(step.id);
+                    return (
+                      <div key={step.id} className="flex items-start gap-3">
+                        <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
+                          status === 'complete' ? 'bg-teal-500 text-white' :
+                          status === 'active' ? 'bg-cyan-400 text-slate-900 animate-pulse' :
+                          'bg-slate-700 text-slate-400'
+                        }`}>
+                          {status === 'complete' ? '✓' : status === 'active' ? '⚙' : idx + 1}
+                        </div>
+                        <div className="flex-1">
+                          <p className={`text-sm font-semibold ${
+                            status === 'complete' || status === 'active' ? 'text-white' : 'text-slate-400'
+                          }`}>
+                            {step.label}
+                          </p>
+                          <p className={`text-xs mt-0.5 ${
+                            status === 'active' ? 'text-cyan-300' : 'text-slate-500'
+                          }`}>
+                            {step.description}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
               {/* Status Message */}
-              {error || loading || result ? (
+              {error || result || loading ? (
                 <div
-                  className={`mt-4 p-3 rounded-lg text-sm font-medium ${
+                  className={`mt-6 p-4 rounded-lg text-sm font-medium ${
                     loading
-                      ? 'bg-blue-50 border border-blue-200 text-blue-700'
+                      ? 'bg-cyan-500/20 border border-cyan-500/50 text-cyan-200'
                       : result
-                        ? 'bg-green-50 border border-green-200 text-green-700'
-                        : 'bg-red-50 border border-red-200 text-red-700'
+                      ? 'bg-teal-500/20 border border-teal-500/50 text-teal-200'
+                      : 'bg-red-500/20 border border-red-500/50 text-red-200'
                   }`}
                 >
                   {loading
                     ? '⚡ It may take a few minutes — good insights need a moment.'
                     : result
-                      ? '✨ Analysis completed. Emails sent.'
-                      : `Error: ${error}`}
+                    ? '✅ Analysis completed successfully.'
+                    : `Error: ${error}`}
                 </div>
               ) : (
-                <div className="mt-4 p-3 rounded-lg text-sm font-medium bg-gray-50 border border-gray-200 text-gray-600">
+                <div className="mt-6 p-4 rounded-lg text-sm font-medium bg-slate-700/50 border border-slate-600/50 text-slate-300">
                   🔎 Select a window and click Analyze.
                 </div>
               )}
@@ -252,143 +340,106 @@ function App() {
           {/* Results Card - Right Column */}
           {result && (
             <div className="md:col-span-1 md:overflow-y-auto md:h-screen md:pr-2">
-              <div className="bg-white rounded-3xl shadow-2xl shadow-gray-300/50 border border-gray-200 p-8 md:p-10 space-y-6">
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-teal-500/30 p-8 md:p-10 space-y-8">
                 {/* Download Button */}
                 {pulseFileName && (
                   <button
                     onClick={handleDownload}
-                    className="w-full h-11 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold hover:scale-[1.02] hover:shadow-xl active:scale-95 transition-all"
+                    className="w-full h-11 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-xl font-semibold hover:scale-[1.02] hover:shadow-lg hover:shadow-cyan-500/50 active:scale-95 transition-all"
                   >
-                    📥 Download Weekly Pulse (JSON)
+                    Download Pulse Report (JSON)
                   </button>
                 )}
 
                 {/* Analysis Window */}
-                <div className="border-l-4 border-blue-500 pl-4 py-2">
-                  <p className="text-sm text-gray-600">
-                    <span className="font-semibold text-gray-900">📅 Analysis Window</span>
-                  </p>
-                  <p className="text-base text-gray-700 mt-1">
+                <div className="border-l-4 border-teal-400 pl-4 py-2">
+                  <p className="text-xs text-teal-300 font-semibold uppercase tracking-wide">Analysis Window</p>
+                  <p className="text-lg text-white font-bold mt-1">
                     {result.start_date} → {result.end_date}
                   </p>
                 </div>
 
-                {/* Top Themes */}
+                {/* Executive Scorecard */}
+                <div>
+                  <p className="text-xs text-teal-300 font-semibold uppercase tracking-wide mb-4">Executive Scorecard</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-gradient-to-br from-purple-500/30 to-purple-600/20 border border-purple-500/50 rounded-lg p-4 text-center">
+                      <p className="text-2xl font-bold text-purple-300">{result.top_themes?.length || 0}</p>
+                      <p className="text-xs text-purple-200 mt-1">Key Themes</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-cyan-500/30 to-cyan-600/20 border border-cyan-500/50 rounded-lg p-4 text-center">
+                      <p className="text-2xl font-bold text-cyan-300">{result.quotes?.length || 0}</p>
+                      <p className="text-xs text-cyan-200 mt-1">User Quotes</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-teal-500/30 to-teal-600/20 border border-teal-500/50 rounded-lg p-4 text-center">
+                      <p className="text-2xl font-bold text-teal-300">{result.action_ideas?.length || 0}</p>
+                      <p className="text-xs text-teal-200 mt-1">Action Ideas</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Top Themes - Collapsible Accordion */}
                 {result.top_themes && result.top_themes.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">🎯 Top Themes</h3>
-                    <ul className="space-y-3">
+                    <p className="text-xs text-teal-300 font-semibold uppercase tracking-wide mb-3">Product Themes</p>
+                    <div className="space-y-2">
                       {result.top_themes.map((item, idx) => (
-                        <li key={idx} className="text-gray-700">
-                          <div className="font-semibold text-gray-900 mb-1">
-                            {typeof item === 'string' ? item : item.theme}
-                          </div>
-                          {item.summary_bullets && item.summary_bullets.length > 0 && (
-                            <ul className="ml-4 space-y-1">
-                              {item.summary_bullets.slice(0, 2).map((bullet, bidx) => (
-                                <li key={bidx} className="text-sm text-gray-600 leading-relaxed">
-                                  • {bullet}
-                                </li>
+                        <div key={idx} className="border border-teal-500/30 rounded-lg overflow-hidden">
+                          <button
+                            onClick={() => setExpandedTheme(expandedTheme === idx ? null : idx)}
+                            className="w-full px-4 py-3 bg-slate-800/50 hover:bg-slate-800/70 transition text-left flex items-center justify-between group"
+                          >
+                            <span className="font-semibold text-white group-hover:text-teal-300 transition">
+                              {typeof item === 'string' ? item : item.theme}
+                            </span>
+                            <span className={`text-teal-400 transition-transform ${
+                              expandedTheme === idx ? 'rotate-180' : ''
+                            }`}>
+                              ▼
+                            </span>
+                          </button>
+                          {expandedTheme === idx && item.summary_bullets && item.summary_bullets.length > 0 && (
+                            <div className="px-4 py-3 bg-slate-900/30 border-t border-teal-500/20 space-y-2">
+                              {item.summary_bullets.map((bullet, bidx) => (
+                                <p key={bidx} className="text-sm text-slate-300 leading-relaxed flex gap-2">
+                                  <span className="text-teal-400 flex-shrink-0">•</span>
+                                  <span>{bullet}</span>
+                                </p>
                               ))}
-                            </ul>
+                            </div>
                           )}
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
 
-                {/* Quotes */}
+                {/* User Quotes */}
                 {result.quotes && result.quotes.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">💬 Real User Quotes</h3>
-                    <ul className="space-y-3">
+                    <p className="text-xs text-teal-300 font-semibold uppercase tracking-wide mb-3">User Voice</p>
+                    <div className="space-y-3">
                       {result.quotes.slice(0, 3).map((quote, idx) => (
-                        <li key={idx} className="text-gray-700 italic border-l-2 border-gray-300 pl-4">
+                        <div key={idx} className="pl-4 border-l-2 border-cyan-400 text-slate-300 italic text-sm">
                           "{quote}"
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
 
                 {/* Action Ideas */}
                 {result.action_ideas && result.action_ideas.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">🛠️ Action Ideas</h3>
-                    <ul className="space-y-3">
+                    <p className="text-xs text-teal-300 font-semibold uppercase tracking-wide mb-3">Recommended Actions</p>
+                    <ul className="space-y-2">
                       {result.action_ideas.slice(0, 3).map((idea, idx) => (
-                        <li key={idx} className="text-gray-700 flex gap-3">
-                          <span className="text-blue-500 font-bold flex-shrink-0 mt-0.5">✓</span>
+                        <li key={idx} className="text-slate-300 flex gap-3 text-sm">
+                          <span className="text-teal-400 flex-shrink-0 font-bold">✓</span>
                           <span>{idea}</span>
                         </li>
                       ))}
                     </ul>
-                  </div>
-                )}
-
-                {/* Detailed Notes */}
-                {result.note_markdown && (
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">📋 Detailed Report</h3>
-                    <div className="bg-gray-50 p-5 rounded-xl border border-gray-200 space-y-4">
-                      {result.note_markdown.split('\n\n').map((paragraph, idx) => {
-                        const lines = paragraph.split('\n');
-                        const firstLine = lines[0];
-                        
-                        // Handle markdown headings (##)
-                        if (firstLine.startsWith('##')) {
-                          return (
-                            <h4 key={idx} className="font-bold text-gray-900 mb-3 mt-4 text-base">
-                              {firstLine.replace(/^#+\s*/, '')}
-                            </h4>
-                          );
-                        }
-                        
-                        // Handle theme sections (bold title followed by bullets)
-                        const isBoldedTheme = firstLine && !firstLine.startsWith('*') && !firstLine.startsWith('#');
-                        if (isBoldedTheme && lines.length > 1 && lines[1]?.trim().startsWith('*')) {
-                          return (
-                            <div key={idx} className="mt-4">
-                              <h5 className="font-semibold text-gray-900 mb-3 text-sm">
-                                {firstLine.replace(/\*\*/g, '').trim()}
-                              </h5>
-                              <ul className="space-y-2 ml-4">
-                                {lines.map((line, i) => (
-                                  line.trim().startsWith('*') && (
-                                    <li key={i} className="list-disc text-sm text-gray-700">
-                                      {line.replace(/^[*\-]\s*/, '').replace(/\*\*/g, '').trim()}
-                                    </li>
-                                  )
-                                ))}
-                              </ul>
-                            </div>
-                          );
-                        }
-                        
-                        // Handle bullet lists
-                        if (firstLine.startsWith('*')) {
-                          return (
-                            <ul key={idx} className="space-y-2 ml-4">
-                              {lines.map((line, i) => (
-                                line.trim() && (
-                                  <li key={i} className="list-disc text-sm text-gray-700">
-                                    {line.replace(/^[*\-]\s*/, '').replace(/\*\*/g, '').trim()}
-                                  </li>
-                                )
-                              ))}
-                            </ul>
-                          );
-                        }
-                        
-                        // Handle regular paragraphs
-                        return (
-                          <p key={idx} className="text-sm text-gray-800 leading-relaxed">
-                            {paragraph.replace(/\*\*/g, '').trim()}
-                          </p>
-                        );
-                      })}
-                    </div>
                   </div>
                 )}
               </div>

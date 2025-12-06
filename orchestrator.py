@@ -422,6 +422,15 @@ def run_weekly_pulse(api_key: str = None, window_days: int = 28) -> Dict:
 def main():
     """CLI entry point"""
     import argparse
+    import sys
+    
+    # ... existing code ...
+    
+    # Enable UTF-8 output on Windows
+    if sys.platform == 'win32':
+        import io
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
     
     parser = argparse.ArgumentParser(
         description="Weekly App Review Pulse Orchestrator"
@@ -451,7 +460,14 @@ def main():
         print(f"  Layer 1 JSON: {summary['outputs']['layer1_json']}")
         print(f"  Layer 2 JSON: {summary['outputs']['layer2_json']}")
         print(f"  Layer 3 Pulse: {summary['outputs']['layer3_pulse']}")
-        print(f"  Layer 4 Email Subject: {summary['outputs']['layer4_subject']}")
+        # Handle emoji in subject line safely
+        try:
+            subject = summary['outputs']['layer4_subject']
+            print(f"  Layer 4 Email Subject: {subject}")
+        except UnicodeEncodeError:
+            # Fallback if emoji can't be encoded
+            subject = summary['outputs']['layer4_subject'].encode('utf-8', 'replace').decode('utf-8')
+            print(f"  Layer 4 Email Subject: {subject}")
         print(f"\nSummary saved to: {summary['summary_file']}")
     else:
         print(f"Failed at: {summary['failed_layer']}")

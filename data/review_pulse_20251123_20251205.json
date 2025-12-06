@@ -1,0 +1,38 @@
+{
+  "start_date": "2025-11-23",
+  "end_date": "2025-12-05",
+  "top_themes": [
+    {
+      "theme": "Execution & Performance",
+      "summary_bullets": [
+        "Users report frequent app crashes, unresponsiveness, and data inaccuracies.",
+        "Critical issues like slow order execution and missing position displays in option trading are leading to losses."
+      ]
+    },
+    {
+      "theme": "UI & Feature Gaps",
+      "summary_bullets": [
+        "Requests for advanced charting tools, indicators, and integrated stop-loss on charts are high.",
+        "Users also note missing data (e.g., MF holdings, historical data) and UI usability issues."
+      ]
+    },
+    {
+      "theme": "Charges & Transparency",
+      "summary_bullets": [
+        "High brokerage fees, new minimum charges, and unexpected fees cause dissatisfaction.",
+        "Users seek better transparency and explanation for all charges."
+      ]
+    }
+  ],
+  "quotes": [
+    "many times in option trading after taking a trade, position doesn't show for a long time and due to this we get losses and losses.",
+    "it is very annoying to have clicked some buttons accidentally causing unintended activation of services.",
+    "too much charges and taxes. if you get 100rs profit 50-60rs will be taxes while buying and for maintaining and for even selling the stocks!"
+  ],
+  "action_ideas": [
+    "Prioritize critical bug fixes for app stability, live data, and order execution, especially for option trading flows.",
+    "Evaluate and roadmap key UI/UX improvements like advanced charting tools and integrated stop-loss on charts.",
+    "Enhance transparency on all charges; improve in-app fee communication and review the impact of minimum brokerage."
+  ],
+  "note_markdown": "# Weekly App Review Pulse (2025-11-23–2025-12-05)\n\n## Top Themes\n*   **Execution & Performance:** Users report frequent app crashes, unresponsiveness, and data inaccuracies. Critical issues like slow order execution and missing position displays in option trading are leading to losses.\n*   **UI & Feature Gaps:** Requests for advanced charting tools, indicators, and integrated stop-loss on charts are high. Users also note missing data (e.g., MF holdings, historical data) and UI usability issues.\n*   **Charges & Transparency:** High brokerage fees, new minimum charges, and unexpected fees cause dissatisfaction. Users seek better transparency and explanation for all charges.\n\n## User Voice (Quotes)\n*   \"many times in option trading after taking a trade, position doesn't show for a long time and due to this we get losses and losses.\"\n*   \"it is very annoying to have clicked some buttons accidentally causing unintended activation of services.\"\n*   \"too much charges and taxes. if you get 100rs profit 50-60rs will be taxes while buying and for maintaining and for even selling the stocks!\"\n\n## Action Ideas\n*   Prioritize critical bug fixes for app stability, live data, and order execution, especially for option trading flows.\n*   Evaluate and roadmap key UI/UX improvements like advanced charting tools and integrated stop-loss on charts.\n*   Enhance transparency on all charges; improve in-app fee communication and review the impact of minimum brokerage."
+}

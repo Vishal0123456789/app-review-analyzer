@@ -46,10 +46,10 @@ async def analyze(request: AnalyzeRequest):
     """Run orchestrator and send emails"""
     
     # Validate window_days
-    if not isinstance(request.window_days, int) or request.window_days < 7 or request.window_days > 56:
+    if not isinstance(request.window_days, int) or request.window_days < 7 or request.window_days > 35:
         raise HTTPException(
             status_code=400,
-            detail={"status": "error", "message": "window_days must be between 7 and 56."}
+            detail={"status": "error", "message": "window_days must be between 7 and 35 (1-5 weeks)."}
         )
     
     user_email = request.email.strip() if request.email else None

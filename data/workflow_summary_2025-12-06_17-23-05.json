@@ -1,0 +1,29 @@
+{
+  "start_date": "2025-11-23",
+  "end_date": "2025-12-06",
+  "status": "success",
+  "failed_layer": null,
+  "details": "All 4 layers completed successfully in 243.71 seconds",
+  "timestamps": {
+    "workflow_start": "2025-12-06T17:19:02.007980",
+    "layer1_start": "2025-12-06T17:19:02.007980",
+    "layer1_end": "2025-12-06T17:19:11.780649",
+    "layer2_start": "2025-12-06T17:19:11.780649",
+    "layer2_end": "2025-12-06T17:21:45.381150",
+    "layer3_start": "2025-12-06T17:21:45.381150",
+    "layer3_end": "2025-12-06T17:22:43.704029",
+    "layer4_start": "2025-12-06T17:22:43.704029",
+    "layer4_end": "2025-12-06T17:23:05.718600",
+    "workflow_end": "2025-12-06T17:23:05.718600"
+  },
+  "outputs": {
+    "layer1_json": "C:\\Users\\satis\\Milestone 2\\data\\review_transformed_20251123_20251205.json",
+    "layer1_csv": "C:\\Users\\satis\\Milestone 2\\data\\review_transformed_20251123_20251205.csv",
+    "layer2_json": "data/review_classified_20251123_20251205.json",
+    "layer2_csv": "data/review_classified_20251123_20251205.csv",
+    "layer3_themes": "data/review_theme_summaries_20251123_20251205.json",
+    "layer3_pulse": "data/review_pulse_20251123_20251205.json",
+    "layer4_subject": "🚨 Groww App Pulse Deep Dive: Perf, UI, Funds (2025-11-23 - 2025-12-05)",
+    "layer4_log": "data/email_send_log_20251123_20251205.json"
+  }
+}
