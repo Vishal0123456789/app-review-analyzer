@@ -381,6 +381,8 @@ Product Team"""
         
         if USE_MOCK_SEND:
             logger.info("Using MOCK send (not actually sending)")
+            logger.info(f"MOCK EMAIL SUBJECT: {subject}")
+            logger.info(f"MOCK EMAIL BODY:\n{body}")
             return True, "mock_send"
         
         try:

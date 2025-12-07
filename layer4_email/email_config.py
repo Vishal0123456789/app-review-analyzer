@@ -29,7 +29,8 @@ SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "True").lower() == "true"
 # SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
 
 # For testing: you can use print instead of sending
-USE_MOCK_SEND = False  # Set to False to actually send emails
+# For testing: you can use print instead of sending
+USE_MOCK_SEND = os.getenv("USE_MOCK_SEND", "False").lower() == "true"
 
 # LLM Configuration
 GEMINI_MODEL = "gemini-2.5-flash"
