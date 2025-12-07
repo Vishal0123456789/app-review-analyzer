@@ -246,8 +246,15 @@ class WeeklyPulseOrchestrator:
                 logger.info(f"  Subject: {subject}")
                 logger.info(f"  Body length: {len(body)} characters")
                 logger.info(f"  Send log: {log_file}")
-                logger.info(f"  Status: {status}")
-                return True, subject, log_file, None
+                
+                # Check actual send status
+                if status == "sent" or status == "mock_send":
+                    logger.info(f"  Status: {status}")
+                    return True, subject, log_file, None
+                else:
+                    error_msg = f"Email generation successful but sending failed. Status: {status}"
+                    logger.error(f"[FAIL] Layer 4 partial failure: {error_msg}")
+                    return False, subject, log_file, error_msg
             else:
                 error_msg = "Layer 4 failed to generate email"
                 logger.error(f"[FAIL] Layer 4 failed: {error_msg}")

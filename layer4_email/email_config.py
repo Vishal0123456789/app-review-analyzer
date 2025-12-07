@@ -20,9 +20,10 @@ TO_EMAILS = [email.strip() for email in TO_EMAILS_ENV.split(',')]
 BCC_EMAIL = None  # Optional: BCC email address
 
 # SMTP configuration (use environment variables in production)
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
-SMTP_USE_TLS = True
+# SMTP configuration (use environment variables in production)
+SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "True").lower() == "true"
 # SMTP credentials should come from environment variables:
 # SMTP_USERNAME = os.getenv('SMTP_USERNAME')
 # SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')

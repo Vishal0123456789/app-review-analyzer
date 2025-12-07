@@ -414,11 +414,18 @@ Product Team"""
                 logger.error(f"Available env vars: {list(os.environ.keys())}")
                 return False, "Missing SMTP credentials"
             
-            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-                if SMTP_USE_TLS:
-                    server.starttls()
-                server.login(smtp_username, smtp_password)
-                server.send_message(msg)
+            if SMTP_PORT == 465:
+                # Use SMTP_SSL for port 465
+                with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
+                    server.login(smtp_username, smtp_password)
+                    server.send_message(msg)
+            else:
+                # Use standard SMTP + STARTTLS for 587 and others
+                with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+                    if SMTP_USE_TLS:
+                        server.starttls()
+                    server.login(smtp_username, smtp_password)
+                    server.send_message(msg)
             
             logger.info(f"Email sent successfully to {len(to_emails)} recipients")
             return True, "sent"
