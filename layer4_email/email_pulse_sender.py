@@ -23,6 +23,7 @@ from .email_config import (
 )
 
 # Setup logging
+os.makedirs("logs", exist_ok=True)  # Ensure logs directory exists
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL),
     format='%(asctime)s - %(levelname)s - %(message)s',

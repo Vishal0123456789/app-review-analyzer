@@ -25,6 +25,7 @@ from layer4_email.email_pulse_sender import EmailPulseSender
 
 # Setup logging
 log_date = datetime.now().strftime('%Y%m%d')
+os.makedirs("logs", exist_ok=True)  # Ensure logs directory exists
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - [%(name)s] - %(message)s',
