@@ -184,7 +184,7 @@ class WeeklyPulseGenerator:
         
         if not self.model:
             logger.error("Gemini API not configured. Set GEMINI_API_KEY environment variable.")
-            return None, None
+            return None, None, None
         
         # Load reviews
         reviews = self.load_classified_reviews()
