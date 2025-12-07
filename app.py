@@ -115,6 +115,8 @@ async def analyze(request: AnalyzeRequest):
             raise Exception(f"Orchestrator execution failed: {result.stderr}")
         
         logger.info("Orchestrator completed successfully")
+        logger.info(f"Orchestrator STDOUT: {result.stdout}")
+        logger.info(f"Orchestrator STDERR: {result.stderr}")
         
         # Find and load the latest pulse file
         pulse_file = find_latest_pulse_file()
